@@ -1,0 +1,59 @@
+name: Deploy Emscripten
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.51
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Install Ninja
+        run: sudo apt-get install ninja-build
+
+      - name: Build
+        run: |
+          mkdir -p build-em
+          cd build-em
+          emcmake cmake .. -G Ninja -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+
+      - name: Prepare Deployment
+        run: |
+          cd build-em/host
+          cp clemens_iigs.html index.html
+          # Ensure coi-serviceworker is there if CMake copy failed or path differs
+          if [ -f "coi-serviceworker.js" ]; then
+            echo "coi-serviceworker.js exists"
+          else
+            echo "Downloading coi-serviceworker.js as fallback"
+            curl -o coi-serviceworker.js https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js
+          fi
+          echo "Prepared index.html for deployment"
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build-em/host
+          force_orphan: true

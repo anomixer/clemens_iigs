@@ -37,8 +37,8 @@ struct ClemensHostInterop {
     bool mouseLock;
     bool running;
     bool fastMode;
-    unsigned viewWidth;         //   0 = no change
-    unsigned viewHeight;        //   0 = no change
+    unsigned viewWidth;  //   0 = no change
+    unsigned viewHeight; //   0 = no change
     unsigned minWindowWidth;
     unsigned minWindowHeight;
 };
@@ -48,5 +48,13 @@ void clemens_host_init(ClemensHostInterop *interop);
 void clemens_host_update();
 
 void clemens_host_terminate();
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void clemens_host_import_disk(int driveIndex, bool isSmart, const char *path);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

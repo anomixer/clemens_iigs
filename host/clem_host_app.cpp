@@ -643,3 +643,15 @@ sapp_desc sokol_main(int argc, char *argv[]) {
 
     return sapp;
 }
+
+extern "C" void clemens_host_import_disk(int driveIndex, bool isSmart, const char *path) {
+    if (g_Host && g_Host->getViewType() == ClemensHostView::ViewType::Main) {
+        auto *frontend = static_cast<ClemensFrontend *>(g_Host);
+        if (isSmart) {
+            frontend->insertSmartDisk(driveIndex, path);
+        } else {
+            frontend->insertDisk(static_cast<ClemensDriveType>(driveIndex), path);
+        }
+    }
+}
+

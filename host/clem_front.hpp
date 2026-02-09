@@ -40,7 +40,7 @@ struct ClemensBackendState;
 
 class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
   public:
-    ClemensFrontend(ClemensConfiguration& config, const cinek::ByteBuffer &systemFontLoBuffer,
+    ClemensFrontend(ClemensConfiguration &config, const cinek::ByteBuffer &systemFontLoBuffer,
                     const cinek::ByteBuffer &systemFontHiBuffer);
     ~ClemensFrontend();
 
@@ -51,6 +51,9 @@ class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
     void pasteText(const char *text, unsigned textSizeLimit) final;
     void lostFocus() final;
     void gainFocus() final;
+
+    void insertDisk(ClemensDriveType driveType, std::string path);
+    void insertSmartDisk(unsigned driveIndex, std::string path);
 
   private:
     void onDebuggerCommandReboot() override;
@@ -76,7 +79,7 @@ class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
     //  when a frame has been published
     void processBackendResult(const ClemensBackendResult &result);
 
-    void doEmulatorInterface(ImVec2 anchor, ImVec2 dimensions, ClemensHostInterop& interop,
+    void doEmulatorInterface(ImVec2 anchor, ImVec2 dimensions, ClemensHostInterop &interop,
                              const ViewToMonitorTranslation &viewToMonitor, double deltaTime);
 
     void doDebuggerLayout(ImVec2 anchor, ImVec2 dimensions,
@@ -92,7 +95,8 @@ class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
     void doMachineDiagnosticsDisplay();
     void doMachineDiskDisplay(float width);
     void doMachineDiskStatus(ClemensDriveType driveType, float width);
-    void doMachineSmartDriveStatus(unsigned driveIndex, const char* label, bool allowSelect, bool allowHotswap);
+    void doMachineSmartDriveStatus(unsigned driveIndex, const char *label, bool allowSelect,
+                                   bool allowHotswap);
 
     void doMachineDiskMotorStatus(const ImVec2 &pos, const ImVec2 &size, bool isSpinning);
 
@@ -115,7 +119,7 @@ class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
     void rebootInternal(bool keyfocus);
 
   private:
-    ClemensConfiguration& config_;
+    ClemensConfiguration &config_;
     ClemensDisplayProvider displayProvider_;
 
     ClemensDisplay display_;
@@ -207,12 +211,7 @@ class ClemensFrontend : public ClemensHostView, ClemensDebuggerListener {
     };
     void setGUIMode(GUIMode guiMode);
 
-    enum class HelpMode {
-      None,
-      General,
-      Shortcuts,
-      Disk
-    };
+    enum class HelpMode { None, General, Shortcuts, Disk };
 
     GUIMode guiMode_;
     HelpMode helpMode_;

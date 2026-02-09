@@ -1,3 +1,12 @@
+# Emscripten specific
+build-em/
+host/clemens_iigs.html
+host/clemens_iigs.js
+host/clemens_iigs.wasm
+host/clemens_iigs.worker.js
+host/clemens_iigs.data
+
+# Standard
 .DS_Store
 .cache/
 .vscode/
@@ -7,5 +16,6 @@ build/
 dist/
 data/*.rom
 data/*.bin
-compile_flags.txt
 
+# Tools
+tools/

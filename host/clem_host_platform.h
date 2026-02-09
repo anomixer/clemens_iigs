@@ -5,11 +5,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(_WIN32)
+#if defined(__EMSCRIPTEN__)
+
+#define CLEMENS_PLATFORM_EMSCRIPTEN
+#define CLEMENS_PATH_MAX    4096
+#define CLEMENS_PLATFORM_ID "Emscripten"
+
+#elif defined(_WIN32)
 
 #define CLEMENS_PLATFORM_WINDOWS
 //  A larger value to cover more edge cases but likely not all
-#define CLEMENS_PATH_MAX 1024
+#define CLEMENS_PATH_MAX    1024
 #define CLEMENS_PLATFORM_ID "Win32"
 
 #elif defined(__linux__)
@@ -54,6 +60,8 @@
 #define CLEM_HOST_JOYSTICK_PROVIDER_GAMECONTROLLER "gamecontroller"
 #define CLEM_HOST_JOYSTICK_PROVIDER_HIDIOKIT       "hid-iokit"
 #define CLEM_HOST_JOYSTICK_PROVIDER_DEFAULT        CLEM_HOST_JOYSTICK_PROVIDER_GAMECONTROLLER
+#elif defined(CLEMENS_PLATFORM_EMSCRIPTEN)
+#define CLEM_HOST_JOYSTICK_PROVIDER_DEFAULT ""
 #endif
 
 #ifdef __cplusplus
@@ -74,7 +82,6 @@ typedef struct {
     int16_t y[2];
     bool isConnected;
 } ClemensHostJoystick;
-
 
 /**
  * @brief Returns the current processor the local thread is running on
@@ -107,12 +114,12 @@ char *get_process_executable_path(char *outpath, size_t *outpath_size);
 
 /**
  * @brief Get the local user directory object
- * 
- * @param outpath 
- * @param outpath_size 
- * @return char* 
+ *
+ * @param outpath
+ * @param outpath_size
+ * @return char*
  */
-char* get_local_user_directory(char *outpath, size_t outpath_size);
+char *get_local_user_directory(char *outpath, size_t outpath_size);
 
 /**
  * @brief Get the local user data directory qualified with identifiers
@@ -128,12 +135,12 @@ char *get_local_user_data_directory(char *outpath, size_t outpath_size, const ch
 
 /**
  * @brief Get the local user config directory (mainly Linux)
- * 
- * @param outpath 
- * @param outpath_size 
- * @param company_name 
- * @param app_name 
- * @return char* 
+ *
+ * @param outpath
+ * @param outpath_size
+ * @param company_name
+ * @param app_name
+ * @return char*
  */
 char *get_local_user_config_directory(char *outpath, size_t outpath_size, const char *company_name,
                                       const char *app_name);
@@ -168,6 +175,16 @@ void clem_joystick_close_devices(void);
 
 #ifdef __cplusplus
 }
+#endif
+
+#if defined(__EMSCRIPTEN__)
+#ifdef __cplusplus
+extern "C" {
+#endif
+void clem_host_platform_select_disk(int driveIndex, bool isSmart);
+#ifdef __cplusplus
+}
+#endif
 #endif
 
 #endif

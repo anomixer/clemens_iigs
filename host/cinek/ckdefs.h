@@ -157,6 +157,8 @@
 #endif
 #elif __linux__
 #define CK_TARGET_LINUX
+#elif defined(__EMSCRIPTEN__)
+#define CK_TARGET_EMSCRIPTEN
 #elif _WIN32
 #define CK_TARGET_WINDOWS
 #else
@@ -167,12 +169,12 @@
  *  \def CK_ALIGN_SIZE(_val, _align_)
  *  Returns a size value based on _val_, and aligned using the specified _align_ value.
  */
-#define CK_ALIGN_SIZE(_val_, _align_) (((_val_) + (_align_)-1) & ~((_align_)-1))
+#define CK_ALIGN_SIZE(_val_, _align_) (((_val_) + (_align_) - 1) & ~((_align_) - 1))
 /**
  * \def CK_ALIGN_PTR(_ptr_, _align_)
  * Returns an adjusted pointer based on _ptr_, aligned by _align_ bytes.
  */
-#define CK_ALIGN_PTR(_ptr_, _align_) (((uintptr_t)(_ptr_) + (_align_)-1) & ~((_align_)-1))
+#define CK_ALIGN_PTR(_ptr_, _align_) (((uintptr_t)(_ptr_) + (_align_) - 1) & ~((_align_) - 1))
 
 /**
  * \def CK_ARCH_ALIGN_BYTES

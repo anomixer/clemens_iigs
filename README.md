@@ -1,5 +1,8 @@
 # Clemens IIGS
 
+### [Try the Web Demo](https://anomixer.github.io/clemens_iigs/)
+**Run Clemens IIGS directly in your browser! Supports disk mounting via local file selection.**
+
 Clemens is an Apple IIgs emulator for macOS (Catalina or later), Linux and Windows 10.  
 It runs most IIgs software under a ROM 3 compliant backend.  It also aims to provide a solid
 frontend for both users and developers.
@@ -107,6 +110,25 @@ cmake -B build -DCMAKE_BUILD_TYPE=<Debug|RelWithDbgInfo|Release> -DBUILD_TESTING
 cmake --build build --config <Debug|RelWithDbgInfo|Release>
 cp build/host/clemens_iigs <your_selected_install_directory>
 ```
+
+### Windows
+### Emscripten (Web)
+
+1.  Install the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
+2.  Activate the latest version and ensure environment variables are set.
+3.  Run the build script:
+
+```bash
+.\build_emscripten.bat
+```
+
+4.  Run the local server:
+
+```bash
+.\run_emscripten.bat
+```
+
+5.  Open `http://localhost:6931/clemens_iigs.html` in your browser.
 
 ### Windows
 

@@ -129,6 +129,11 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(PLATFORM_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/platform/host_macos.m"
         "${CMAKE_CURRENT_SOURCE_DIR}/clem_host.mm")
+elseif (EMSCRIPTEN)
+    set(clemens_ICON_FILE "")
+    set(PLATFORM_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/platform/host_emscripten.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/clem_host.cpp")
 endif()
 
 set(PROJECT_SOURCES
@@ -170,6 +175,27 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_definitions(clemens_iigs PRIVATE CK3D_BACKEND_GL)
     target_link_libraries(clemens_iigs PRIVATE asound X11 Xi Xcursor GL dl pthread uuid)
+elseif(EMSCRIPTEN)
+    target_compile_definitions(clemens_iigs PRIVATE CK3D_BACKEND_GL)
+    target_compile_options(clemens_iigs PRIVATE "SHELL:-s USE_PTHREADS=1")
+    target_link_options(clemens_iigs PRIVATE 
+        "SHELL:-s WASM=1"
+        "SHELL:-s USE_WEBGL2=1"
+        "SHELL:-s FULL_ES3=1"
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s NO_EXIT_RUNTIME=1"
+        "SHELL:-s ASSERTIONS=1"
+        "SHELL:-s USE_PTHREADS=1"
+        "SHELL:-s PTHREAD_POOL_SIZE=8"
+        "SHELL:-s EXPORTED_RUNTIME_METHODS=ccall,UTF8ToString"
+        "SHELL:--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../data.zip@/data.zip"
+        "SHELL:--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../rom/rom.v3@/rom.v3"
+        "SHELL:--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/resources/emscripten_shell.html"
+    )
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/coi-serviceworker.js ${CMAKE_CURRENT_BINARY_DIR}/coi-serviceworker.js COPYONLY)
+    # create the .html file
+    set_target_properties(clemens_iigs PROPERTIES SUFFIX ".html")
+
 elseif(APPLE)
     find_library(FOUNDATION_LIB Foundation)
     find_library(APPKIT_LIB AppKit)

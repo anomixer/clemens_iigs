@@ -17,7 +17,10 @@
 #include <cstdlib>
 #include <cstring>
 
-#if defined(CK3D_BACKEND_D3D11)
+#if defined(__EMSCRIPTEN__)
+#include "shaders/gles3.inl"
+#define CLEM_SHADER_INCLUDED_EMSCRIPTEN
+#elif defined(CK3D_BACKEND_D3D11)
 #include "shaders/d3d11.inl"
 #elif defined(CK3D_BACKEND_GL)
 #include "shaders/glcore33.inl"
@@ -247,6 +250,9 @@ ClemensDisplayProvider::ClemensDisplayProvider(const cinek::ByteBuffer &systemFo
     shaderDesc.fs.images[0].name = "tex";
 #endif
     shaderDesc.fs.source = FS_TEXT_SOURCE;
+#ifdef CLEM_SHADER_INCLUDED_EMSCRIPTEN
+    printf("Shader Source: %s\n", VS_VERTEX_SOURCE);
+#endif
     textShader_ = sg_make_shader(shaderDesc);
 
     //  create text pipeline and vertex buffer, no alpha blending, triangles

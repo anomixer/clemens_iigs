@@ -7,6 +7,10 @@ set (CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerO
 
 project(clemens_65816 C CXX)
 
+if(EMSCRIPTEN)
+    add_compile_options("SHELL:-s USE_PTHREADS=1")
+    add_link_options("SHELL:-s USE_PTHREADS=1")
+endif()
 
 option(BUILD_TESTING "Build tests" ON)
 

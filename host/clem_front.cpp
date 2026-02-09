@@ -2091,6 +2091,9 @@ void ClemensFrontend::doMachineDiskStatus(ClemensDriveType driveType, float /*wi
                                  diskIndicatorSize, driveStatus.isSpinning);
         ImGui::SetCursorScreenPos(diskWidgetPos);
         if (ImGui::InvisibleButton("disk", diskWidgetSize)) {
+#if defined(__EMSCRIPTEN__)
+            clem_host_platform_select_disk(driveType, false);
+#else
             if (!browseDriveType_.has_value() || *browseDriveType_ != driveType) {
                 browseDriveType_ = driveType;
             } else {
@@ -2106,6 +2109,7 @@ void ClemensFrontend::doMachineDiskStatus(ClemensDriveType driveType, float /*wi
                 }
                 assetBrowser_.setDiskType(ClemensDiskAsset::diskTypeFromDriveType(driveType));
             }
+#endif
         }
         ImVec4 uiColor;
         if (ImGui::IsItemActive() || ImGui::IsItemHovered() || ImGui::IsItemFocused()) {
@@ -2256,6 +2260,9 @@ void ClemensFrontend::doMachineSmartDriveStatus(unsigned driveIndex, const char 
         if (browseSmartDriveIndex_.has_value() || !allowSelect) {
             ImGui::Dummy(diskWidgetSize);
         } else if (ImGui::InvisibleButton("disk", diskWidgetSize)) {
+#if defined(__EMSCRIPTEN__)
+            clem_host_platform_select_disk(driveIndex, true);
+#else
             if (!browseSmartDriveIndex_.has_value() || *browseSmartDriveIndex_ != driveIndex) {
                 browseSmartDriveIndex_ = driveIndex;
             } else {
@@ -2271,6 +2278,7 @@ void ClemensFrontend::doMachineSmartDriveStatus(unsigned driveIndex, const char 
                 }
                 assetBrowser_.setDiskType(ClemensDiskAsset::DiskHDD);
             }
+#endif
         }
         ImVec4 uiColor;
         if (allowSelect &&
@@ -3471,3 +3479,22 @@ void ClemensFrontend::onDebuggerCommandReboot() { rebootInternal(false); }
 void ClemensFrontend::onDebuggerCommandShutdown() { setGUIMode(GUIMode::ShutdownEmulator); }
 
 void ClemensFrontend::onDebuggerCommandPaste() { pasteClipboardToEmulator_ = true; }
+
+void ClemensFrontend::insertDisk(ClemensDriveType driveType, std::string path) {
+    if (isBackendRunning()) {
+        backendQueue_.insertDisk(driveType, path);
+    } else {
+        config_.gs.diskImagePaths[driveType] = path;
+        config_.setDirty();
+    }
+}
+
+void ClemensFrontend::insertSmartDisk(unsigned driveIndex, std::string path) {
+    if (isBackendRunning()) {
+        backendQueue_.insertSmartPortDisk(driveIndex, path);
+    } else {
+        config_.gs.smartPortImagePaths[driveIndex] = path;
+        config_.setDirty();
+    }
+}
+

@@ -23,6 +23,9 @@ void ClemensSettingsUI::stop() { mode_ = Mode::None; }
 
 void ClemensSettingsUI::start() {
     mode_ = Mode::Main;
+    if (config_.romFilename.empty() && std::filesystem::exists("rom.v3")) {
+        config_.romFilename = "rom.v3";
+    }
     romFileExists_ = !config_.romFilename.empty() && std::filesystem::exists(config_.romFilename);
 
     for (unsigned slotIdx = 0; slotIdx < CLEM_CARD_SLOT_COUNT; ++slotIdx) {
@@ -113,13 +116,14 @@ bool ClemensSettingsUI::frame() {
                 auto cards = getCardNamesForSlot(slotIdx);
                 snprintf(slotLabel, sizeof(slotLabel), "Slot %u", slotIdx + 1);
                 if (ImGui::BeginCombo(slotLabel, !config_.gs.cardNames[slotIdx].empty()
-                                                     ? config_.gs.cardNames[slotIdx].c_str() 
+                                                     ? config_.gs.cardNames[slotIdx].c_str()
                                                      : "None")) {
                     if (ImGui::Selectable("None", config_.gs.cardNames[slotIdx].empty())) {
                         config_.gs.cardNames[slotIdx].clear();
                     }
                     for (auto cardNameIt = cards.begin(); cardNameIt != cards.end(); ++cardNameIt) {
-                        if (*cardNameIt == nullptr) break;
+                        if (*cardNameIt == nullptr)
+                            break;
                         if (ImGui::Selectable(*cardNameIt,
                                               config_.gs.cardNames[slotIdx] == *cardNameIt)) {
                             config_.gs.cardNames[slotIdx] = *cardNameIt;
