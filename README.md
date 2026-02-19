@@ -114,21 +114,21 @@ cp build/host/clemens_iigs <your_selected_install_directory>
 ### Windows
 ### Emscripten (Web)
 
-1.  Install the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
-2.  Activate the latest version and ensure environment variables are set.
-3.  Run the build script:
+1.  Run the automated build script (this will download and setup Emscripten SDK and Ninja automatically):
 
 ```bash
 .\build_emscripten.bat
 ```
 
-4.  Run the local server:
+2.  Run the local server:
 
 ```bash
 .\run_emscripten.bat
 ```
 
-5.  Open `http://localhost:6931/clemens_iigs.html` in your browser.
+3.  Open `http://localhost:6931/clemens_iigs.html` in your browser.
+
+**Note:** On the Web version, use **`Ctrl + LAlt + RAlt + F1`** to simulate the Apple IIgs **Reset/Control Panel** (which is normally mapped to `Ctrl + Reset` or `Apple + Control + Esc`). Standard numeric keypad shortcuts are disabled to avoid conflicts.
 
 ### Windows
 

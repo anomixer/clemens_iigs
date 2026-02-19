@@ -61,15 +61,15 @@ There may be titles where this mouse emulation does not work.  In those cases, t
 - Ctrl-Right ALT-F12 to reboot the system
 - Ctrl-F12 for CTRL-RESET
 - Ctrl-Left ALT-F1 to enter the Control Panel
-- Ctrl-Left ALT-F11 to switch to Debugger Mode
-- Ctrl-Left ALT-F10 to lock mouse
-- Ctrl-Left ALT-F8 to toggle fast mode
-- Ctrl-Left ALT-F5 to pause and resume emulation
+- Ctrl-Alt-F11 to switch to Debugger Mode
+- Ctrl-Alt-F10 to lock mouse
+- Ctrl-Alt-F8 to toggle fast mode
+- Ctrl-Alt-F5 to pause and resume emulation
 )md"};
 const char *kMouseUnlock[] = {"Press  CTRL + ALT + F10 to unlock mouse"};
 
-const char *kHybridModeShortcutText[] = {"Ctrl + Left Alt + F11"};
-const char *kLockMouseShortcutText[] = {"Ctrl + Left Alt + F10"};
-const char *kTogglePauseShortcutText[] = {"Ctrl + Left Alt + F5"};
-const char *kFastModeShortCutText[] = {"Ctrl + Left Alt + F8"};
+const char *kHybridModeShortcutText[] = {"Ctrl + Alt + F11"};
+const char *kLockMouseShortcutText[] = {"Ctrl + Alt + F10"};
+const char *kTogglePauseShortcutText[] = {"Ctrl + Alt + F5"};
+const char *kFastModeShortCutText[] = {"Ctrl + Alt + F8"};
 #endif

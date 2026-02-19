@@ -1474,25 +1474,24 @@ void ClemensFrontend::doMainMenu(ImVec2 &anchor, ClemensHostInterop &interop) {
 
     //  ImGui hotkeys are not handled by the ImGui system, so handle the keypresses here
     if (guiMode_ == GUIMode::Emulator) {
-        if (ImGui::IsKeyDown(ImGuiKey_LeftAlt)) {
-            if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl)) {
-                if (ImGui::IsKeyPressed(ImGuiKey_F10) || ImGui::IsKeyPressed(ImGuiKey_0)) {
+        if (ImGui::GetIO().KeyAlt) {
+            if (ImGui::GetIO().KeyCtrl) {
+                if (ImGui::IsKeyPressed(ImGuiKey_F10)) {
                     if (interop.mouseLock) {
                         interop.action = ClemensHostInterop::MouseUnlock;
                     } else {
                         interop.action = ClemensHostInterop::MouseLock;
                     }
-                } else if (ImGui::IsKeyPressed(ImGuiKey_F11) ||
-                           ImGui::IsKeyPressed(ImGuiKey_Minus)) {
+                } else if (ImGui::IsKeyPressed(ImGuiKey_F11)) {
                     config_.hybridInterfaceEnabled = !config_.hybridInterfaceEnabled;
                     config_.setDirty();
-                } else if (ImGui::IsKeyPressed(ImGuiKey_F5) || ImGui::IsKeyPressed(ImGuiKey_5)) {
+                } else if (ImGui::IsKeyPressed(ImGuiKey_F5)) {
                     if (frameReadState_.isRunning) {
                         interop.action = ClemensHostInterop::PauseExecution;
                     } else {
                         interop.action = ClemensHostInterop::ContinueExecution;
                     }
-                } else if (ImGui::IsKeyPressed(ImGuiKey_F8) || ImGui::IsKeyPressed(ImGuiKey_8)) {
+                } else if (ImGui::IsKeyPressed(ImGuiKey_F8)) {
                     if (lastCommandState_.isFastModeOn) {
                         interop.action = ClemensHostInterop::DisableFastMode;
                     } else {
@@ -3497,4 +3496,3 @@ void ClemensFrontend::insertSmartDisk(unsigned driveIndex, std::string path) {
         config_.setDirty();
     }
 }
-

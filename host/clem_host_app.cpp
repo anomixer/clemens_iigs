@@ -250,9 +250,31 @@ static sapp_keycode onKeyUp(const sapp_event *evt, bool *doDownEvent) {
     return outKeyCode;
 }
 #else
-static sapp_keycode onKeyDown(const sapp_event *evt) { return evt->key_code; }
+static bool g_escapeKeyDown = false;
+
+static sapp_keycode onKeyDown(const sapp_event *evt) {
+    if (evt->modifiers & (SAPP_MODIFIER_CTRL + SAPP_MODIFIER_ALT)) {
+        if (evt->key_code == SAPP_KEYCODE_F1 && !g_escapeKeyDown) {
+            g_escapeKeyDown = true;
+            return SAPP_KEYCODE_ESCAPE;
+        }
+    }
+    if (evt->key_code == SAPP_KEYCODE_ESCAPE) {
+        if (g_escapeKeyDown)
+            return SAPP_KEYCODE_INVALID;
+    }
+    return evt->key_code;
+}
 
 static sapp_keycode onKeyUp(const sapp_event *evt, bool *doDownEvent) {
+    if (g_escapeKeyDown) {
+        if (evt->key_code == SAPP_KEYCODE_F1) {
+            g_escapeKeyDown = false;
+            return SAPP_KEYCODE_ESCAPE;
+        } else if (evt->key_code == SAPP_KEYCODE_ESCAPE) {
+            return SAPP_KEYCODE_INVALID;
+        }
+    }
     *doDownEvent = false;
     return evt->key_code;
 }
@@ -511,7 +533,7 @@ static void doHostInputEvent(struct ClemensInputEvent &clemInput, uint32_t modif
 }
 
 static void onEvent(const sapp_event *evt, void *) {
-    struct ClemensInputEvent clemInput {};
+    struct ClemensInputEvent clemInput{};
 
     simgui_handle_event(evt);
 
@@ -654,4 +676,3 @@ extern "C" void clemens_host_import_disk(int driveIndex, bool isSmart, const cha
         }
     }
 }
-
