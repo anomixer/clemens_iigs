@@ -178,6 +178,27 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(EMSCRIPTEN)
     target_compile_definitions(clemens_iigs PRIVATE CK3D_BACKEND_GL)
     target_compile_options(clemens_iigs PRIVATE "SHELL:-s USE_PTHREADS=1")
+
+    # ROM path - must be provided by the user (not included in repo due to copyright)
+    set(CLEMENS_ROM_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../rom/rom.v3"
+        CACHE STRING "Path to Apple IIgs ROM 3 image file (rom.v3). Not included in repo - must be supplied by the user.")
+    if(NOT EXISTS "${CLEMENS_ROM_PATH}")
+        message(FATAL_ERROR
+            "\n"
+            "  Apple IIgs ROM file not found: ${CLEMENS_ROM_PATH}\n"
+            "\n"
+            "  The Emscripten build requires an Apple IIgs ROM 3 image.\n"
+            "  This file is NOT included in the repository due to copyright.\n"
+            "\n"
+            "  To proceed:\n"
+            "    1. Obtain a legitimate Apple IIgs ROM 3 dump and place it at:\n"
+            "         ${CMAKE_CURRENT_SOURCE_DIR}/../rom/rom.v3\n"
+            "    -- OR --\n"
+            "    2. Specify a custom path:\n"
+            "         cmake ... -DCLEMENS_ROM_PATH=/path/to/your/rom.v3\n")
+    endif()
+    message(STATUS "Using ROM: ${CLEMENS_ROM_PATH}")
+
     target_link_options(clemens_iigs PRIVATE 
         "SHELL:-s WASM=1"
         "SHELL:-s USE_WEBGL2=1"
@@ -189,7 +210,7 @@ elseif(EMSCRIPTEN)
         "SHELL:-s PTHREAD_POOL_SIZE=8"
         "SHELL:-s EXPORTED_RUNTIME_METHODS=ccall,UTF8ToString"
         "SHELL:--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../data.zip@/data.zip"
-        "SHELL:--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../rom/rom.v3@/rom.v3"
+        "SHELL:--preload-file ${CLEMENS_ROM_PATH}@/rom.v3"
         "SHELL:--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/resources/emscripten_shell.html"
     )
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/coi-serviceworker.js ${CMAKE_CURRENT_BINARY_DIR}/coi-serviceworker.js COPYONLY)

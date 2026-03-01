@@ -21,6 +21,22 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Restore ROM from secret
+        # The Apple IIgs ROM 3 is NOT included in the repository (copyright).
+        # Store a base64-encoded copy as the GitHub Secret: IIGS_ROM_V3_BASE64
+        # Encode locally with:  base64 -w 0 rom.v3 > rom_b64.txt
+        # Then paste the contents as the secret value in your repo settings.
+        run: |
+          mkdir -p rom
+          if [ -z "${{ secrets.IIGS_ROM_V3_BASE64 }}" ]; then
+            echo "::error::Secret IIGS_ROM_V3_BASE64 is not set."
+            echo "::error::The Apple IIgs ROM 3 is required for the Emscripten build."
+            echo "::error::Please add the base64-encoded ROM as a repository secret named IIGS_ROM_V3_BASE64."
+            exit 1
+          fi
+          echo "${{ secrets.IIGS_ROM_V3_BASE64 }}" | base64 -d > rom/rom.v3
+          echo "ROM restored successfully ($(wc -c < rom/rom.v3) bytes)"
+
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
@@ -34,7 +50,8 @@ jobs:
         run: |
           mkdir -p build-em
           cd build-em
-          emcmake cmake .. -G Ninja -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release
+          emcmake cmake .. -G Ninja -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release \
+            -DCLEMENS_ROM_PATH="${GITHUB_WORKSPACE}/rom/rom.v3"
           cmake --build .
 
       - name: Prepare Deployment

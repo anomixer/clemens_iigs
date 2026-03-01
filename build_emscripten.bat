@@ -1,6 +1,39 @@
 @echo off
 setlocal
 
+rem ============================================================
+rem  ROM Check
+rem  The Apple IIgs ROM 3 is required for Emscripten builds.
+rem  It is NOT included in this repository (copyright Apple Computer, Inc.)
+rem  You must supply your own ROM file.
+rem
+rem  Default path:  rom\rom.v3  (relative to project root)
+rem  Override:      set CLEMENS_ROM_PATH=C:\path\to\your\rom.v3
+rem ============================================================
+if defined CLEMENS_ROM_PATH (
+    set ROM_PATH=%CLEMENS_ROM_PATH%
+) else (
+    set ROM_PATH=%~dp0rom\rom.v3
+)
+
+if not exist "%ROM_PATH%" (
+    echo.
+    echo [ERROR] Apple IIgs ROM file not found: %ROM_PATH%
+    echo.
+    echo  The Emscripten build requires an Apple IIgs ROM 3 image.
+    echo  This file is NOT included in the repository due to copyright.
+    echo.
+    echo  To proceed:
+    echo    1. Obtain a legitimate Apple IIgs ROM 3 dump  ^(rom.v3^)
+    echo    2. Place it at:  %~dp0rom\rom.v3
+    echo       -- OR --
+    echo    3. Set the environment variable before running this script:
+    echo         set CLEMENS_ROM_PATH=C:\path\to\your\rom.v3
+    echo.
+    exit /b 1
+)
+echo [Setup] ROM found: %ROM_PATH%
+
 rem Define tools directory
 set TOOLS_DIR=%~dp0tools
 if not exist "%TOOLS_DIR%" mkdir "%TOOLS_DIR%"
@@ -60,7 +93,7 @@ if exist "build-em\CMakeCache.txt" (
 
 cd build-em
 echo [Build] Configuring CMake...
-call emcmake cmake .. -G "Ninja" -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release
+call emcmake cmake .. -G "Ninja" -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release -DCLEMENS_ROM_PATH="%ROM_PATH%"
 if errorlevel 1 goto error
 
 echo [Build] Compiling...
@@ -81,3 +114,4 @@ goto :eof
 :error
 echo Build failed.
 exit /b 1
+

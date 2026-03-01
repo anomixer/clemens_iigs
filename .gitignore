@@ -17,5 +17,9 @@ dist/
 data/*.rom
 data/*.bin
 
+# ROM files - must be supplied by the user (copyright Apple Computer, Inc.)
+# Place your Apple IIgs ROM 3 file at: rom/rom.v3
+rom/
+
 # Tools
 tools/
