@@ -21,21 +21,31 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Restore ROM from secret
+      - name: Restore ROM from secrets
         # The Apple IIgs ROM 3 is NOT included in the repository (copyright).
-        # Store a base64-encoded copy as the GitHub Secret: IIGS_ROM_V3_BASE64
-        # Encode locally with:  base64 -w 0 rom.v3 > rom_b64.txt
-        # Then paste the contents as the secret value in your repo settings.
+        # The ROM (262144 bytes) is stored as 6 base64-encoded GitHub Secrets because
+        # GitHub's per-secret limit is 64KB and the full base64 is ~349KB.
+        #
+        # To set these secrets, run from the project root (Windows):
+        #   powershell -ExecutionPolicy Bypass -File tools\split_rom_secret.ps1
+        # Then add each generated tools\rom_secret_partN.txt as a secret:
+        #   IIGS_ROM_V3_BASE64_1 ... IIGS_ROM_V3_BASE64_6
         run: |
           mkdir -p rom
-          if [ -z "${{ secrets.IIGS_ROM_V3_BASE64 }}" ]; then
-            echo "::error::Secret IIGS_ROM_V3_BASE64 is not set."
-            echo "::error::The Apple IIgs ROM 3 is required for the Emscripten build."
-            echo "::error::Please add the base64-encoded ROM as a repository secret named IIGS_ROM_V3_BASE64."
+          if [ -z "${{ secrets.IIGS_ROM_V3_BASE64_1 }}" ]; then
+            echo "::error::Secret IIGS_ROM_V3_BASE64_1 is not set."
+            echo "::error::Run tools/split_rom_secret.ps1 and add the 6 generated secrets to your repo."
             exit 1
           fi
-          echo "${{ secrets.IIGS_ROM_V3_BASE64 }}" | base64 -d > rom/rom.v3
-          echo "ROM restored successfully ($(wc -c < rom/rom.v3) bytes)"
+          printf '%s%s%s%s%s%s' \
+            "${{ secrets.IIGS_ROM_V3_BASE64_1 }}" \
+            "${{ secrets.IIGS_ROM_V3_BASE64_2 }}" \
+            "${{ secrets.IIGS_ROM_V3_BASE64_3 }}" \
+            "${{ secrets.IIGS_ROM_V3_BASE64_4 }}" \
+            "${{ secrets.IIGS_ROM_V3_BASE64_5 }}" \
+            "${{ secrets.IIGS_ROM_V3_BASE64_6 }}" \
+            | base64 -d > rom/rom.v3
+          echo "ROM restored: $(wc -c < rom/rom.v3) bytes"
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -58,7 +68,6 @@ jobs:
         run: |
           cd build-em/host
           cp clemens_iigs.html index.html
-          # Ensure coi-serviceworker is there if CMake copy failed or path differs
           if [ -f "coi-serviceworker.js" ]; then
             echo "coi-serviceworker.js exists"
           else
