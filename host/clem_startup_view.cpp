@@ -194,6 +194,8 @@ auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
         // The JS overlay covers the canvas and guides the user.
     } break;
 #endif
+
+    case Mode::Preamble:
         if (!preamble_) {
             if (validateDirectories()) {
                 setupLogger(config_);
