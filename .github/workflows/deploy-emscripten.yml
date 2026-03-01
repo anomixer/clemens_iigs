@@ -21,32 +21,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Restore ROM from secrets
-        # The Apple IIgs ROM 3 is NOT included in the repository (copyright).
-        # The ROM (262144 bytes) is stored as 6 base64-encoded GitHub Secrets because
-        # GitHub's per-secret limit is 64KB and the full base64 is ~349KB.
-        #
-        # To set these secrets, run from the project root (Windows):
-        #   powershell -ExecutionPolicy Bypass -File tools\split_rom_secret.ps1
-        # Then add each generated tools\rom_secret_partN.txt as a secret:
-        #   IIGS_ROM_V3_BASE64_1 ... IIGS_ROM_V3_BASE64_6
-        run: |
-          mkdir -p rom
-          if [ -z "${{ secrets.IIGS_ROM_V3_BASE64_1 }}" ]; then
-            echo "::error::Secret IIGS_ROM_V3_BASE64_1 is not set."
-            echo "::error::Run tools/split_rom_secret.ps1 and add the 6 generated secrets to your repo."
-            exit 1
-          fi
-          printf '%s%s%s%s%s%s' \
-            "${{ secrets.IIGS_ROM_V3_BASE64_1 }}" \
-            "${{ secrets.IIGS_ROM_V3_BASE64_2 }}" \
-            "${{ secrets.IIGS_ROM_V3_BASE64_3 }}" \
-            "${{ secrets.IIGS_ROM_V3_BASE64_4 }}" \
-            "${{ secrets.IIGS_ROM_V3_BASE64_5 }}" \
-            "${{ secrets.IIGS_ROM_V3_BASE64_6 }}" \
-            | base64 -d > rom/rom.v3
-          echo "ROM restored: $(wc -c < rom/rom.v3) bytes"
-
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
@@ -57,11 +31,13 @@ jobs:
         run: sudo apt-get install ninja-build
 
       - name: Build
+        # No ROM file is required at build time.
+        # The ROM is loaded at runtime by the user via a browser file picker
+        # and cached in IndexedDB for subsequent visits.
         run: |
           mkdir -p build-em
           cd build-em
-          emcmake cmake .. -G Ninja -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release \
-            -DCLEMENS_ROM_PATH="${GITHUB_WORKSPACE}/rom/rom.v3"
+          emcmake cmake .. -G Ninja -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release
           cmake --build .
 
       - name: Prepare Deployment

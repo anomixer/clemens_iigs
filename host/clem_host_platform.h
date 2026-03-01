@@ -182,6 +182,10 @@ void clem_joystick_close_devices(void);
 extern "C" {
 #endif
 void clem_host_platform_select_disk(int driveIndex, bool isSmart);
+/** Kicks off async ROM loading: IndexedDB cache first, then file picker. */
+void clem_host_platform_load_rom(void);
+/** Returns ROM state: 0=idle, 1=loading, 2=ready, 3=error */
+int clem_host_platform_rom_state(void);
 #ifdef __cplusplus
 }
 #endif

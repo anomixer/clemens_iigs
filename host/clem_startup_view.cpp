@@ -4,6 +4,10 @@
 #include "clem_imgui.hpp"
 #include "clem_preamble.hpp"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "fmt/core.h"
 #include "fmt/format.h"
 #include "imgui.h"
@@ -19,9 +23,10 @@
 #include <system_error>
 
 #if defined(_MSC_VER) && defined(WIN32)
-    #define NOMINMAX
-    #include <Windows.h>
-    #include "spdlog/sinks/msvc_sink.h"
+#define NOMINMAX
+#include "spdlog/sinks/msvc_sink.h"
+#include <Windows.h>
+
 #endif
 
 namespace {
@@ -30,8 +35,6 @@ void setupLogger(const ClemensConfiguration &config) {
     static spdlog::level::level_enum levels[] = {spdlog::level::debug, spdlog::level::info,
                                                  spdlog::level::warn, spdlog::level::err,
                                                  spdlog::level::err};
-
-
 
     auto logLevel = levels[std::clamp(config.logLevel, 0, CLEM_DEBUG_LOG_FATAL)];
     std::shared_ptr<spdlog::sinks::sink> console_sink;
@@ -93,7 +96,8 @@ void setupLogger(const ClemensConfiguration &config) {
  *  - MacOS
  *    - Supports only User installs and store in ~/Library/Application or equivalent
  */
-ClemensStartupView::ClemensStartupView(ClemensConfiguration& config) : mode_(Mode::Initial), config_(config) {}
+ClemensStartupView::ClemensStartupView(ClemensConfiguration &config)
+    : mode_(Mode::Initial), config_(config) {}
 
 auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
                                ClemensHostInterop &interop) -> ViewType {
@@ -109,7 +113,11 @@ auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
             }
         } else {
             //  Popup will be closed, and so the remaining logic will be skipped.
+#ifdef __EMSCRIPTEN__
+            mode_ = Mode::WaitForRom;
+#else
             mode_ = Mode::Preamble;
+#endif
         }
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, 0, ImVec2(0.5f, 0.5f));
@@ -128,7 +136,11 @@ auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
             ImGui::Separator();
             ImGui::PopTextWrapPos();
             if (ImGui::Button("OK", ImVec2(240, 0))) {
+#ifdef __EMSCRIPTEN__
+                mode_ = Mode::WaitForRom;
+#else
                 mode_ = Mode::Preamble;
+#endif
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SetItemDefaultFocus();
@@ -158,7 +170,27 @@ auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
         }
         break;
 
-    case Mode::Preamble:
+#ifdef __EMSCRIPTEN__
+    case Mode::WaitForRom: {
+        // Kick off async ROM loading once
+        if (!romLoadTriggered_) {
+            romLoadTriggered_ = true;
+            clem_host_platform_load_rom();
+        }
+        int romState = clem_host_platform_rom_state();
+        if (romState == 2) {
+            // ROM is ready in MEMFS, proceed to normal startup
+            mode_ = Mode::Preamble;
+        } else if (romState == 3) {
+            // Error state: JS overlay stays visible; just spin here.
+            // The user can try selecting the file again via the overlay button.
+            // (The JS overlay handles the retry; romLoadTriggered_ stays true
+            //  so we don't call load_rom again while error is showing.)
+        }
+        // While state == 1 (loading/waiting for user), render nothing extra.
+        // The JS overlay covers the canvas and guides the user.
+    } break;
+#endif
         if (!preamble_) {
             if (validateDirectories()) {
                 setupLogger(config_);

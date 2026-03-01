@@ -10,7 +10,7 @@ class ClemensPreamble;
 
 class ClemensStartupView : public ClemensHostView {
   public:
-    ClemensStartupView(ClemensConfiguration& config);
+    ClemensStartupView(ClemensConfiguration &config);
 
   public:
     ViewType getViewType() const final { return ViewType::Startup; }
@@ -22,13 +22,22 @@ class ClemensStartupView : public ClemensHostView {
     void gainFocus() final;
 
   private:
-    enum class Mode { Initial, ChangeDataDirectory, Preamble, SetupError, Aborted, Finished };
+    enum class Mode {
+        Initial,
+        ChangeDataDirectory,
+        WaitForRom,
+        Preamble,
+        SetupError,
+        Aborted,
+        Finished
+    };
     bool validateDirectories();
 
     Mode mode_;
-    ClemensConfiguration& config_;
+    ClemensConfiguration &config_;
 
     std::string setupError_;
+    bool romLoadTriggered_ = false;
 
     std::unique_ptr<ClemensPreamble> preamble_;
 };

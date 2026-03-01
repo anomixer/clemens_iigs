@@ -2,37 +2,13 @@
 setlocal
 
 rem ============================================================
-rem  ROM Check
-rem  The Apple IIgs ROM 3 is required for Emscripten builds.
-rem  It is NOT included in this repository (copyright Apple Computer, Inc.)
-rem  You must supply your own ROM file.
+rem  Clemens IIGS - Emscripten Build Script
 rem
-rem  Default path:  rom\rom.v3  (relative to project root)
-rem  Override:      set CLEMENS_ROM_PATH=C:\path\to\your\rom.v3
+rem  The Apple IIgs ROM 3 is NOT required at build time.
+rem  Users supply their own ROM via the browser file picker
+rem  when first running the emulator. The ROM is then cached
+rem  in IndexedDB for future sessions.
 rem ============================================================
-if defined CLEMENS_ROM_PATH (
-    set ROM_PATH=%CLEMENS_ROM_PATH%
-) else (
-    set ROM_PATH=%~dp0rom\rom.v3
-)
-
-if not exist "%ROM_PATH%" (
-    echo.
-    echo [ERROR] Apple IIgs ROM file not found: %ROM_PATH%
-    echo.
-    echo  The Emscripten build requires an Apple IIgs ROM 3 image.
-    echo  This file is NOT included in the repository due to copyright.
-    echo.
-    echo  To proceed:
-    echo    1. Obtain a legitimate Apple IIgs ROM 3 dump  ^(rom.v3^)
-    echo    2. Place it at:  %~dp0rom\rom.v3
-    echo       -- OR --
-    echo    3. Set the environment variable before running this script:
-    echo         set CLEMENS_ROM_PATH=C:\path\to\your\rom.v3
-    echo.
-    exit /b 1
-)
-echo [Setup] ROM found: %ROM_PATH%
 
 rem Define tools directory
 set TOOLS_DIR=%~dp0tools
@@ -93,7 +69,7 @@ if exist "build-em\CMakeCache.txt" (
 
 cd build-em
 echo [Build] Configuring CMake...
-call emcmake cmake .. -G "Ninja" -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release -DCLEMENS_ROM_PATH="%ROM_PATH%"
+call emcmake cmake .. -G "Ninja" -DEMSCRIPTEN=1 -DCMAKE_BUILD_TYPE=Release
 if errorlevel 1 goto error
 
 echo [Build] Compiling...
@@ -109,9 +85,12 @@ if not exist "host\coi-serviceworker.js" (
 echo.
 echo Build complete.
 echo To run the emulator, execute: run_emscripten.bat
+echo.
+echo NOTE: On first launch, the emulator will prompt you to select your
+echo       Apple IIgs ROM 3 file (rom.v3). The ROM will be saved in the
+echo       browser's IndexedDB so you only need to select it once.
 goto :eof
 
 :error
 echo Build failed.
 exit /b 1
-
