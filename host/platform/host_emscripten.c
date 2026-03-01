@@ -132,7 +132,7 @@ EM_JS(void, clemens_load_rom, (void), {
                 var reader = new FileReader();
                 reader.onload = function(e) {
                     var buf = e.target.result;
-                    if (buf.byteLength != = 262144) {
+                    if (buf.byteLength !== 262144) {
                         document.getElementById('rom-status').textContent =
                             'Error: expected 262144 bytes, got ' + buf.byteLength +
                             '. Is this really a ROM 3 image?';
