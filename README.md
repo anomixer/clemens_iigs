@@ -1,7 +1,10 @@
 # Clemens IIGS
 
 ### [Try the Web Demo](https://anomixer.github.io/clemens_iigs/)
-**Run Clemens IIGS directly in your browser! Supports disk mounting via local file selection.**
+**Run Clemens IIGS directly in your browser — no installation needed.**  
+On first launch, you will be prompted to select your Apple IIgs **ROM 3** file (`rom.v3`).  
+The ROM is saved in your browser's IndexedDB so you only need to provide it once.  
+Supports disk image mounting via local file selection.
 
 Clemens is an Apple IIgs emulator for macOS (Catalina or later), Linux and Windows 10.  
 It runs most IIgs software under a ROM 3 compliant backend.  It also aims to provide a solid
@@ -127,6 +130,9 @@ cp build/host/clemens_iigs <your_selected_install_directory>
 ```
 
 3.  Open `http://localhost:6931/clemens_iigs.html` in your browser.
+
+4.  **On first launch**, you will be prompted to select your Apple IIgs ROM 3 image (`rom.v3`, 256 KB).  
+    The ROM is saved in your browser's IndexedDB — subsequent launches load it automatically.
 
 **Note:** On the Web version, use **`Ctrl + LAlt + RAlt + F1`** to simulate the Apple IIgs **Reset/Control Panel** (which is normally mapped to `Ctrl + Reset` or `Apple + Control + Esc`). Standard numeric keypad shortcuts are disabled to avoid conflicts.
 
