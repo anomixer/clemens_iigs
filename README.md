@@ -1,9 +1,14 @@
 # Clemens IIGS
 
 ### [Try the Web Demo](https://anomixer.github.io/clemens_iigs/)
-**Run Clemens IIGS directly in your browser — no installation needed.**  
-On first launch, you will be prompted to select your Apple IIgs **ROM 3** file (`rom.v3`).  
-The ROM is saved in your browser's IndexedDB so you only need to provide it once.  
+**Run Clemens IIGS directly in your browser — no installation needed.**
+
+> **ROM required on first launch**  
+> The Apple IIgs **ROM 3** image (`rom.v3`, exactly 256 KB) is required but cannot be bundled  
+> due to copyright. On your very first visit a dialog will appear asking you to locate the file  
+> on your computer. Once selected, the ROM is stored in your browser's **IndexedDB** and will  
+> load automatically on every subsequent visit — you will never be asked again.
+
 Supports disk image mounting via local file selection.
 
 Clemens is an Apple IIgs emulator for macOS (Catalina or later), Linux and Windows 10.  
@@ -115,26 +120,44 @@ cp build/host/clemens_iigs <your_selected_install_directory>
 ```
 
 ### Windows
+
+See the [Windows build instructions](#windows-1) below.
+
 ### Emscripten (Web)
 
-1.  Run the automated build script (this will download and setup Emscripten SDK and Ninja automatically):
+1.  Run the automated build script (downloads Emscripten SDK and Ninja automatically):
 
-```bash
+```bat
 .\build_emscripten.bat
 ```
 
-2.  Run the local server:
+2.  Serve the output (requires Python or any static HTTP server with COOP/COEP headers):
 
-```bash
+```bat
 .\run_emscripten.bat
 ```
 
 3.  Open `http://localhost:6931/clemens_iigs.html` in your browser.
 
-4.  **On first launch**, you will be prompted to select your Apple IIgs ROM 3 image (`rom.v3`, 256 KB).  
-    The ROM is saved in your browser's IndexedDB — subsequent launches load it automatically.
+4.  **ROM selection (first launch only)**  
+    A full-screen dialog will appear asking you to select your Apple IIgs **ROM 3** image.  
+    - The file is typically named `rom.v3` and is exactly **262,144 bytes** (256 KB).  
+    - It is **not** supplied with this project due to copyright (Apple Computer, Inc.).  
+    - You must obtain a legitimate dump of ROM 3 from your own Apple IIgs hardware.  
+    - After you select the file it is saved in **IndexedDB** — future launches start automatically.
 
-**Note:** On the Web version, use **`Ctrl + LAlt + RAlt + F1`** to simulate the Apple IIgs **Reset/Control Panel** (which is normally mapped to `Ctrl + Reset` or `Apple + Control + Esc`). Standard numeric keypad shortcuts are disabled to avoid conflicts.
+5.  Once the ROM is loaded the emulator boots into the Apple IIgs startup screen.  
+    Use the disk-drive icons in the toolbar to mount `.woz`, `.2mg`, `.po` or `.dsk` images.
+
+**Web keyboard shortcuts:**
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl + Alt + F8` | Toggle Fast Mode |
+| `F5` | Pause / Resume |
+| `F10` | Mouse Lock |
+| `F11` | Debugger |
+| `Ctrl + LAlt + RAlt + F1` | Apple IIgs Reset / Control Panel |
 
 ### Windows
 
