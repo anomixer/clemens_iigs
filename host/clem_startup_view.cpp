@@ -179,13 +179,16 @@ auto ClemensStartupView::frame(int width, int height, double /*deltaTime */,
         }
         int romState = clem_host_platform_rom_state();
         if (romState == 2) {
-            // ROM is ready in MEMFS, proceed to normal startup
+            // ROM is ready in MEMFS at /rom.v3 - tell the config where to find it.
+            // Without this the emulator would start with an empty romFilename and
+            // show the Settings screen instead of booting.
+            if (config_.romFilename.empty()) {
+                config_.romFilename = "rom.v3";
+            }
             mode_ = Mode::Preamble;
         } else if (romState == 3) {
             // Error state: JS overlay stays visible; just spin here.
             // The user can try selecting the file again via the overlay button.
-            // (The JS overlay handles the retry; romLoadTriggered_ stays true
-            //  so we don't call load_rom again while error is showing.)
         }
         // While state == 1 (loading/waiting for user), render nothing extra.
         // The JS overlay covers the canvas and guides the user.
